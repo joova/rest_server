@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     DbPoolSingleton::_config = ConnPoolConfig("../conf/store.json");
 
     MicroServiceController server;
-    server.setEndpoint("http://localhost:6502/v1/api");
+    server.setEndpoint("http://localhost:6502/api");
 
     try {
         server.accept().wait();

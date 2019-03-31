@@ -1,5 +1,6 @@
 #include <string>
 #include <vector>
+#include "db_exception.hpp"
 
 typedef struct {
     std::string username;
@@ -11,5 +12,8 @@ typedef struct {
 class UserManger {
 public:
     std::vector<UserInfo> list();
-    void create(const UserInfo & user);
+    void create(const UserInfo & user) throw(DbException);
+    UserInfo find_one(std::string username) throw(DbException);
+    std::vector<UserInfo> find(int offset, int limit);
+    std::vector<UserInfo> find(int offset, int limit, std::string text);
 };
