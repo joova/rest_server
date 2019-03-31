@@ -1,1 +1,1 @@
-# reset_server
+# rest_server
