@@ -4,6 +4,7 @@
 using namespace web;
 using namespace http;
 using namespace http::experimental::listener;
+using namespace utility;
 
 class BasicController {
     protected:
@@ -13,14 +14,14 @@ class BasicController {
         BasicController();
         virtual ~BasicController();
     
-    void setEndpoint(const std::string &value);
+    void SetEndpoint(const std::string &value);
     std::string endpoint() const;
 
-    pplx::task<void> accept();
-    pplx::task<void> shutdown();
+    pplx::task<void> Accept();
+    pplx::task<void> Shutdown();
 
-    virtual void initRestHandlers() { 
+    virtual void InitRestHandlers() { 
     }
     
-    std::vector<utility::string_t> requestPath(const http_request &request);
+    std::vector<utility::string_t> RequestPath(const http_request &request);
 };

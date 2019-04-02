@@ -6,12 +6,12 @@ public:
     MicroServiceController() : BasicController() {}
     ~MicroServiceController() {}
 
-    void handleGet(http_request request) override;
-    void handlePost(http_request request) override;
-    void handlePut(http_request request) override;
-    void handleDelete(http_request request) override;
+    void HandleGet(http_request request) override;
+    void HandlePost(http_request request) override;
+    void HandlePut(http_request request) override;
+    void HandleDelete(http_request request) override;
     
-    void initRestHandlers() override;
+    void InitRestHandlers() override;
 
 private:
     static json::value respNotImpl(const http::method & method);

@@ -13,7 +13,7 @@ BasicController::~BasicController(){
 }
 
 //set endpoint
-void BasicController::setEndpoint(const std::string & value) {
+void BasicController::SetEndpoint(const std::string & value) {
     uri endpointUri(value);
     _listener = http_listener(endpointUri);
 }
@@ -24,17 +24,17 @@ std::string BasicController::endpoint() const {
 }
 
 //accept
-pplx::task<void> BasicController::accept() {
-    initRestHandlers();
+pplx::task<void> BasicController::Accept() {
+    InitRestHandlers();
     return _listener.open();
 }
 
 //shutdown
-pplx::task<void> BasicController::shutdown() {
+pplx::task<void> BasicController::Shutdown() {
     return _listener.close();
 }
 
-std::vector<utility::string_t> BasicController::requestPath(const http_request & request){
-    auto relativePath = uri::decode(request.relative_uri().path());
-    return uri::split_path(relativePath);
+std::vector<string_t> BasicController::RequestPath(const http_request & request){
+    auto relative_path = uri::decode(request.relative_uri().path());
+    return uri::split_path(relative_path);
 }
