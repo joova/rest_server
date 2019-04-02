@@ -6,8 +6,13 @@
         {
             "type": "shell",
             "label": "cmake",
-            "command": "/usr/local/bin/cmake -G 'Unix Makefiles' ..",
-            "args": [],
+            "command": "cmake",
+            "args": [
+                "-G",
+                "'Visual Studio 15 2017 Win64'",
+                "..",
+                "-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
+            ],
             "options": {
                 "cwd": "${workspaceRoot}/build"
             }
@@ -15,7 +20,7 @@
         {
             "type": "shell",
             "label": "make",
-            "command": "/usr/bin/make",
+            "command": "msbuild rest-server.sln /p:configuration=debug /p:platform=x64",
             "args": [],
             "options": {
                 "cwd": "${workspaceRoot}/build"
