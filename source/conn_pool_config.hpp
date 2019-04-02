@@ -1,3 +1,7 @@
+#ifndef REST_SERVER_CONN_POOL_CONFIG_H_
+#define REST_SERVER_CONN_POOL_CONFIG_H_
+
+
 #include <string>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -21,3 +25,5 @@ public:
     std::string conn_str() const { return _conn_str; }
     std::string database() const { return _database; }
 };
+
+#endif // REST_SERVER_CONN_POOL_CONFIG_H_
