@@ -1,3 +1,7 @@
+#ifndef REST_SERVER_USER_MANAGER_H_
+#define REST_SERVER_USER_MANAGER_H_
+
+
 #include <string>
 #include <vector>
 #include <iostream>
@@ -40,3 +44,5 @@ private:
     mongocxx::collection _collection;
     UserInfo getUserInfo(const bsoncxx::document::view & doc);
 };
+
+#endif // REST_SERVER_USER_MANAGER_H_

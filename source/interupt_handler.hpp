@@ -1,3 +1,7 @@
+#ifndef REST_SERVER_INTERRUPT_HANDLER_H_
+#define REST_SERVER_INTERRUPT_HANDLER_H_
+
+
 #include <condition_variable>
 #include <mutex>
 #include <iostream>
@@ -26,3 +30,5 @@ public:
         lock.unlock();
     }
 };
+
+#endif // REST_SERVER_INTERRUPT_HANDLER_H_

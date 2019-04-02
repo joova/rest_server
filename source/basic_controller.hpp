@@ -1,3 +1,6 @@
+#ifndef REST_SERVER_BASIC_CONTROLLER_H_
+#define REST_SERVER_BASIC_CONTROLLER_H_
+
 #include <cpprest/http_listener.h>
 #include <pplx/pplxtasks.h>
 
@@ -25,3 +28,5 @@ class BasicController {
     
     std::vector<utility::string_t> RequestPath(const http_request &request);
 };
+
+#endif // REST_SERVER_BASIC_CONTROLLER_H_s

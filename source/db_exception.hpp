@@ -1,3 +1,7 @@
+#ifndef REST_SERVER_DB_EXCEPTION_H_
+#define REST_SERVER_DB_EXCEPTION_H_
+
+
 #include <exception>
 #include <string>
 
@@ -11,3 +15,5 @@ public:
         return _message.c_str();
     }
 };
+
+#endif // REST_SERVER_DB_EXCEPTION_H_

@@ -1,3 +1,6 @@
+#ifndef REST_SERVER_DB_POOL_SINGLETON_H_
+#define REST_SERVER_DB_POOL_SINGLETON_H_
+
 #include <mongocxx/instance.hpp>
 #include <mongocxx/client.hpp>
 #include <mongocxx/pool.hpp>
@@ -18,3 +21,5 @@ private:
 
     DbPoolSingleton();
 };
+
+#endif // REST_SERVER_DB_POOL_SINGLETON_H_

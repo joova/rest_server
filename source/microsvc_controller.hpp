@@ -1,3 +1,7 @@
+#ifndef REST_SERVER_MICRO_SERVICE_CONTROLLER_H_
+#define REST_SERVER_MICRO_SERVICE_CONTROLLER_H_
+
+
 #include "controller.hpp"
 #include "basic_controller.hpp"
 
@@ -16,3 +20,5 @@ public:
 private:
     static json::value respNotImpl(const http::method & method);
 };
+
+#endif // REST_SERVER_MICRO_SERVICE_CONTROLLER_H_
