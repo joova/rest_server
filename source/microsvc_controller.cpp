@@ -1,7 +1,13 @@
 #include <iostream>
-#include <cpprest/http_msg.h>
+
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>
+#include <boost/log/utility/setup/file.hpp>
+#include <boost/log/utility/setup/common_attributes.hpp>
+
+#include <cpprest/http_msg.h>
+
 #include "microsvc_controller.hpp"
 #include "user_manager.hpp"
 
@@ -41,12 +47,13 @@ void MicroServiceController::HandleGet(http_request request) {
             }
             catch (const std::exception & e) {
                 json::value error;
-                error[U("message")] = json::value::string(e.what());
+                string_t u_what = conversions::to_string_t(e.what());
+                error[U("message")] = json::value::string(u_what);
                 request.reply(status_codes::InternalError, error);
             }
         }
         else if (path.size() == 3 && path[0] == U("idm") && path[1] == U("user")) {
-            std::string _id = path[2];
+            std::string _id = conversions::to_utf8string(path[2]);
 
             try {
                 UserManager userMgr;
@@ -58,7 +65,8 @@ void MicroServiceController::HandleGet(http_request request) {
             }
             catch (const std::exception & e){
                 json::value error;
-                error[U("message")] = json::value::string(e.what());
+                string_t u_what = conversions::to_string_t(e.what());
+                error[U("message")] = json::value::string(u_what);
                 request.reply(status_codes::BadRequest, error);
             }
             
@@ -83,7 +91,7 @@ void MicroServiceController::HandleGet(http_request request) {
             //cover offset & limit from path
             int offset = std::stoi(path[2]);
             int limit = std::stoi(path[3]);
-            std::string text = path[4];
+            std::string text = conversions::to_utf8string(path[4]);
 
             UserManager userMgr;
             std::vector<UserInfo> userList = userMgr.Find(offset, limit, text);
@@ -112,22 +120,23 @@ void MicroServiceController::HandlePost(http_request request) {
             request.extract_json()
             .then([=](json::value val){
                 try {
-                    BOOST_LOG_TRIVIAL(debug) << "val = " << val;
+                    //BOOST_LOG_TRIVIAL(debug) << "val = " << val;
                     UserInfo user(val);
                     
                     UserManager userMgr;
-                    BOOST_LOG_TRIVIAL(debug) << "userMgr.Create";
+                    //BOOST_LOG_TRIVIAL(debug) << "userMgr.Create";
                     userMgr.Create(user);
                     
                     json::value response;
-                    response[U("message")] = json::value::string("Insert success.");
+                    response[U("message")] = json::value::string(U("Insert success."));
                     request.reply(status_codes::OK, response);
                 }
                 catch (DbException & e){
-                    BOOST_LOG_TRIVIAL(error) << "Create user error: " << e.what();
+                    //BOOST_LOG_TRIVIAL(error) << "Create user error: " << e.what();
 
                     json::value error;
-                    error[U("message")] = json::value::string(e.what());
+                    string_t u_what = conversions::to_string_t(e.what());
+                    error[U("message")] = json::value::string(u_what);
                     request.reply(status_codes::BadRequest, error);
                 }
             });
@@ -148,24 +157,25 @@ void MicroServiceController::HandlePut(http_request request) {
             request.extract_json()
             .then([=](json::value val){
                 try {
-                    BOOST_LOG_TRIVIAL(debug) << "val = " << val;
+                    //BOOST_LOG_TRIVIAL(debug) << "val = " << val;
                     UserInfo user(val);
                     
-                    std::string _id = path[2];
+                    std::string _id = conversions::to_utf8string(path[2]);
 
                     UserManager userMgr;
-                    BOOST_LOG_TRIVIAL(debug) << "userMgr.Update";
+                    //BOOST_LOG_TRIVIAL(debug) << "userMgr.Update";
                     userMgr.Update(_id, user);
                     
                     json::value response;
-                    response[U("message")] = json::value::string("Update success.");
+                    response[U("message")] = json::value::string(U("Update success."));
                     request.reply(status_codes::OK, response);
                 }
                 catch (DbException & e){
-                    BOOST_LOG_TRIVIAL(error) << "Update user error: " << e.what();
+                    //BOOST_LOG_TRIVIAL(error) << "Update user error: " << e.what();
 
                     json::value error;
-                    error[U("message")] = json::value::string(e.what());
+                    string_t u_what = conversions::to_string_t(e.what());
+                    error[U("message")] = json::value::string(u_what);
                     request.reply(status_codes::BadRequest, error);
                 }
             });
@@ -186,6 +196,6 @@ void MicroServiceController::HandleDelete(http_request request) {
 json::value MicroServiceController::respNotImpl(const http::method & method) {
     auto response = json::value::object();
     response[U("ServiceName")] = json::value::string(U("C++ MicroService"));
-    response[U("http_method")] = json::value::string(U(method));
+    response[U("http_method")] = json::value::string(method);
     return response;
 }

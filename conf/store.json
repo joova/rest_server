@@ -1,6 +1,6 @@
 { 
     "store": { 
-        "connstr":"mongodb://localhost:27017",
+        "connstr":"mongodb://10.1.6.96:27017",
         "database":"logikaxx"
     }
 }

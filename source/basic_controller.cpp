@@ -1,6 +1,7 @@
 #include <iostream>
 #include "basic_controller.hpp"
 
+using namespace utility;
 
 //constructor
 BasicController::BasicController(){
@@ -14,13 +15,14 @@ BasicController::~BasicController(){
 
 //set endpoint
 void BasicController::SetEndpoint(const std::string & value) {
-    uri endpointUri(value);
+    string_t u_value = conversions::to_string_t(value);
+    uri endpointUri(u_value);
     _listener = http_listener(endpointUri);
 }
 
 //endpoint
 std::string BasicController::endpoint() const {
-    return _listener.uri().to_string();
+    return conversions::to_utf8string(_listener.uri().to_string());
 }
 
 //accept

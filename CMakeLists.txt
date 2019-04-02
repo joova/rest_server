@@ -49,4 +49,4 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${COMMON_LIBRARIES})
 # target_link_libraries(${PROJECT_NAME} PUBLIC ${Boost_LIBRARIES})
 # target_link_libraries(${PROJECT_NAME} PUBLIC ${ZIP_LIBRARY})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE cpprestsdk::cpprest)
+target_link_libraries(${PROJECT_NAME} PRIVATE cpprestsdk::cpprest cpprestsdk::cpprestsdk_zlib_internal cpprestsdk::cpprestsdk_boost_internal cpprestsdk::cpprestsdk_openssl_internal)

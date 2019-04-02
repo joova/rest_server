@@ -8,6 +8,7 @@
 #include "user_manager.hpp"
 #include "db_pool_singleton.hpp"
 
+using namespace utility;
 
 using bsoncxx::builder::stream::close_array;
 using bsoncxx::builder::stream::close_document;
@@ -25,16 +26,16 @@ UserInfo::UserInfo(json::value val) {
 
     //TODO: belum bisa menangani jika key yg dikirim tidak lengkap
     if(val.has_field(U("username")))
-        username = val.at(U("username")).as_string();
+        username = conversions::to_utf8string(val.at(U("username")).as_string());
 
     if(val.has_field(U("username")))
-        password = val.at(U("password")).as_string();
+        password = conversions::to_utf8string(val.at(U("password")).as_string());
 
     if(val.has_field(U("first_name")))
-        first_name = val.at(U("first_name")).as_string();
+        first_name = conversions::to_utf8string(val.at(U("first_name")).as_string());
 
     if(val.has_field(U("last_name")))
-        last_name = val.at(U("last_name")).as_string();
+        last_name = conversions::to_utf8string(val.at(U("last_name")).as_string());
     
     BOOST_LOG_TRIVIAL(debug) << "UserInfo::UserInfo(val) end";
 } 
@@ -43,11 +44,19 @@ json::value UserInfo::ToJsonObject() {
     BOOST_LOG_TRIVIAL(debug) << "UserInfo::ToJsonObject()";
     auto json_obj = json::value::object();
 
-    if(!_id.empty()) 
-        json_obj[U("_id")] = json::value(_id);
-    json_obj[U("username")] = json::value(username);
-    json_obj[U("first_name")] = json::value(first_name);
-    json_obj[U("last_name")] = json::value(last_name);
+    if(!_id.empty()) {
+        string_t u_id = conversions::to_string_t(this->_id);
+        json_obj[U("_id")] = json::value(u_id);
+    }
+
+    string_t u_username = conversions::to_string_t(this->username);    
+    json_obj[U("username")] = json::value(u_username);
+
+    string_t u_first_name = conversions::to_string_t(this->first_name);
+    json_obj[U("first_name")] = json::value(u_first_name);
+
+    string_t u_last_name = conversions::to_string_t(this->last_name);
+    json_obj[U("last_name")] = json::value(u_last_name);
     
     return json_obj;
 }
@@ -62,7 +71,7 @@ UserManager::UserManager() {
     auto db = (*conn)[dbPool.config().database()];
     BOOST_LOG_TRIVIAL(debug) << "db[user]";
 
-    _collection = db[U("users")];
+    _collection = db["users"];
 }
 
 UserManager::~UserManager() { }
