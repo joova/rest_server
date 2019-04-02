@@ -39,19 +39,17 @@ int main(int argc, char* argv[])
 
     InterruptHandler::hookSIGINT();
 
-    DbPoolSingleton::_config = ConnPoolConfig("../conf/store.json");
-
     MicroServiceController server;
-    server.setEndpoint("http://localhost:6502/api");
+    server.SetEndpoint("http://localhost:6502/api");
 
     try {
-        server.accept().wait();
+        server.Accept().wait();
 
         BOOST_LOG_TRIVIAL(info) << "Microservice listening at: " << server.endpoint();
         std::cout << "Microservice listening at: " << server.endpoint() << "\n";
 
-        InterruptHandler::waitForUserInterrupt();
-        server.shutdown().wait();
+        InterruptHandler::WaitForUserInterrupt();
+        server.Shutdown().wait();
 
         BOOST_LOG_TRIVIAL(info) << "Microservice shutdown";
         std::cout << "Microservice shutdown" << "\n";

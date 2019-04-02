@@ -1,0 +1,25 @@
+[2019-04-02 15:19:49.701073] [0x00007fff98967380] [info] Microservice listening at: http://localhost:6502/api
+[2019-04-02 15:20:24.168365] [0x0000700001fd4000] [debug] UserManager::UserManager()
+[2019-04-02 15:20:24.288937] [0x0000700001fd4000] [debug] connection().acquire()
+[2019-04-02 15:20:24.329507] [0x0000700001fd4000] [debug] db[user]
+[2019-04-02 15:20:24.543854] [0x0000700001fd4000] [debug] UserInfo::UserInfo()
+[2019-04-02 15:20:24.544088] [0x0000700001fd4000] [debug] UserInfo::UserInfo()
+[2019-04-02 15:20:24.544181] [0x0000700001fd4000] [debug] UserInfo::UserInfo()
+[2019-04-02 15:20:24.544315] [0x0000700001fd4000] [debug] UserInfo::ToJsonObject()
+[2019-04-02 15:20:24.544450] [0x0000700001fd4000] [debug] UserInfo::ToJsonObject()
+[2019-04-02 15:20:24.544545] [0x0000700001fd4000] [debug] UserInfo::ToJsonObject()
+[2019-04-02 15:20:29.393214] [0x0000700002369000] [debug] UserManager::UserManager()
+[2019-04-02 15:20:29.393306] [0x0000700002369000] [debug] connection().acquire()
+[2019-04-02 15:20:29.393340] [0x0000700002369000] [debug] db[user]
+[2019-04-02 15:20:29.393891] [0x0000700002369000] [debug] UserInfo::UserInfo()
+[2019-04-02 15:20:29.393980] [0x0000700002369000] [debug] UserInfo::UserInfo()
+[2019-04-02 15:20:29.394034] [0x0000700002369000] [debug] UserInfo::UserInfo()
+[2019-04-02 15:20:29.394091] [0x0000700002369000] [debug] UserInfo::ToJsonObject()
+[2019-04-02 15:20:29.394149] [0x0000700002369000] [debug] UserInfo::ToJsonObject()
+[2019-04-02 15:20:29.394188] [0x0000700002369000] [debug] UserInfo::ToJsonObject()
+[2019-04-02 15:20:35.932577] [0x000070000246f000] [debug] UserManager::UserManager()
+[2019-04-02 15:20:35.932686] [0x000070000246f000] [debug] connection().acquire()
+[2019-04-02 15:20:35.932746] [0x000070000246f000] [debug] db[user]
+[2019-04-02 15:20:35.933415] [0x000070000246f000] [debug] UserInfo::UserInfo()
+[2019-04-02 15:20:35.933521] [0x000070000246f000] [debug] UserInfo::ToJsonObject()
+[2019-04-02 15:20:43.733910] [0x00007fff98967380] [info] Microservice shutdown

@@ -5,27 +5,32 @@
 #include "conn_pool_config.hpp"
 
 class DbPoolSingleton {
+private:
     static std::unique_ptr<DbPoolSingleton> _instance;
-    static std::once_flag _onceFlag;
+    static std::unique_ptr<mongocxx::pool> _conn_pool;
+    static ConnPoolConfig _config;
 
-    std::unique_ptr<mongocxx::pool> _connPool;
-
-    DbPoolSingleton(const ConnPoolConfig & config) {
+    DbPoolSingleton() {
         mongocxx::instance instance{};
-        _connPool = std::unique_ptr<mongocxx::pool> (new mongocxx::pool(mongocxx::uri{_config.connstr()}));
+        _config = ConnPoolConfig("../conf/store.json");
+        _conn_pool = std::unique_ptr<mongocxx::pool> (
+                new mongocxx::pool(mongocxx::uri{_config.conn_str()})
+            );
     }
 
 public:
-    static ConnPoolConfig _config;
-    static DbPoolSingleton & shared() {
-        std::call_once(_onceFlag,[]{
-            _instance.reset(new DbPoolSingleton(_config));
-        });
+    static DbPoolSingleton & GetInstance() {
+        if(_instance == 0)
+            _instance.reset(new DbPoolSingleton());
 
         return *_instance; 
     }
 
     mongocxx::pool & connection() const {
-        return *_connPool;
+        return *_conn_pool;
+    }
+
+    ConnPoolConfig & config(){
+        return _config;
     }
 };
