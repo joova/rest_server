@@ -5,6 +5,9 @@
 #include <boost/log/utility/setup/file.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
 
+#include "pool_config.hpp"
+#include "db_pool_singleton.hpp"
+
 namespace logging = boost::log;
 namespace keywords = boost::log::keywords;
 
@@ -22,6 +25,7 @@ void init_logging()
    );
    logging::add_common_attributes();
 }
+
 
 int main(int argc, char ** argv) {
     init_logging();

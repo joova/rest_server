@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 #include <string>
-#include "user_manager.hpp"
 #include "auth_manager.hpp"
 
 class AuthManagerTest : public ::testing::Test {

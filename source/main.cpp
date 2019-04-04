@@ -7,6 +7,16 @@
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <cpprest/http_client.h>
 
+#include <bsoncxx/stdx/make_unique.hpp>
+#include <bsoncxx/stdx/optional.hpp>
+#include <bsoncxx/stdx/string_view.hpp>
+
+#include <mongocxx/instance.hpp>
+#include <mongocxx/logger.hpp>
+#include <mongocxx/pool.hpp>
+#include <mongocxx/uri.hpp>
+
+#include "pool_config.hpp"
 #include "db_pool_singleton.hpp"
 #include "microsvc_controller.hpp"
 #include "interupt_handler.hpp"
@@ -31,11 +41,21 @@ void init_logging()
    logging::add_common_attributes();
 }
 
+// config database connection pool
+void configure() {
+    BOOST_LOG_TRIVIAL(debug) << "config connection pool : ../conf/store.json";
+    PoolConfig config = PoolConfig("../conf/store.json");
+    DbPoolSingleton::instance().configure(config);
+}
+
 // fungsi main
 int main()
 {
     //Inisialisasi logging
     init_logging();
+
+    //Config database
+    //configure();
 
     InterruptHandler::hookSIGINT();
 

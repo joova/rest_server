@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 #include <string>
+#include "pool_config.hpp"
+#include "db_pool_singleton.hpp"
 #include "user_manager.hpp"
 
 class UserManagerTest : public ::testing::Test {
@@ -14,7 +16,8 @@ protected:
         // user_manager_ = NULL;
     }
 
-    virtual void SetUp() {}
+    virtual void SetUp() {
+    }
     virtual void TearDown() {}
 
     static UserManager user_manager_;

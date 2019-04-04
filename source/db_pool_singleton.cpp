@@ -1,28 +1,41 @@
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
 #include "db_pool_singleton.hpp"
 
-std::unique_ptr<DbPoolSingleton> DbPoolSingleton::_instance = nullptr;
-std::unique_ptr<mongocxx::pool> DbPoolSingleton::_conn_pool;
-ConnPoolConfig DbPoolSingleton::_config;
 
-DbPoolSingleton::DbPoolSingleton() {
-    mongocxx::instance instance{};
-    _config = ConnPoolConfig("../conf/store.json");
-    _conn_pool = std::unique_ptr<mongocxx::pool> (
-            new mongocxx::pool(mongocxx::uri{_config.conn_str()})
-        );
+using connection = mongocxx::pool::entry;
+
+DbPoolSingleton::DbPoolSingleton(){
+    PoolConfig config = PoolConfig("../conf/store.json");
+    configure(config);
 }
 
-DbPoolSingleton & DbPoolSingleton::GetInstance() {
-    if(!_instance)
-        _instance.reset(new DbPoolSingleton());
+void DbPoolSingleton::configure(const PoolConfig & config) {
+    BOOST_LOG_TRIVIAL(debug) << "DbPoolSingleton::configure : config.conn_str() = " << config.conn_str();
+    
 
-    return *_instance; 
+    auto instance = bsoncxx::stdx::make_unique<mongocxx::instance>(
+        bsoncxx::stdx::make_unique<NoopLogger>());
+    auto pool = bsoncxx::stdx::make_unique<mongocxx::pool>(
+        std::move(mongocxx::uri{config.conn_str()}));
+
+    _config = config;
+    _instance = std::move(instance);
+    _pool = std::move(pool);
 }
 
-mongocxx::pool & DbPoolSingleton::connection() const {
-    return *_conn_pool;
+DbPoolSingleton & DbPoolSingleton::instance() {
+    BOOST_LOG_TRIVIAL(debug) << "DbPoolSingleton::instance : ... ";
+    static DbPoolSingleton instance;
+    return instance;
 }
 
-ConnPoolConfig & DbPoolSingleton::config(){
+connection DbPoolSingleton::connection() {
+    BOOST_LOG_TRIVIAL(debug) << "DbPoolSingleton::connection : ... ";
+    return _pool->acquire();
+}
+
+PoolConfig DbPoolSingleton::config() {
+    BOOST_LOG_TRIVIAL(debug) << "DbPoolSingleton::config : ... ";
     return _config;
 }

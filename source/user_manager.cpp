@@ -65,13 +65,12 @@ json::value UserInfo::ToJsonObject() {
 UserManager::UserManager() {    
     BOOST_LOG_TRIVIAL(debug) << "UserManager::UserManager()";
 
-    DbPoolSingleton dbPool = DbPoolSingleton::GetInstance();
-    auto conn = dbPool.connection().acquire();
+    auto conn = DbPoolSingleton::instance().connection();
     BOOST_LOG_TRIVIAL(debug) << "connection().acquire()";
 
-    auto db = (*conn)[dbPool.config().database()];
+    auto db = (*conn)[DbPoolSingleton::instance().config().database()];
+    
     BOOST_LOG_TRIVIAL(debug) << "db[user]";
-
     _collection = db["users"];
 }
 
