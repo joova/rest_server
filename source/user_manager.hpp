@@ -34,11 +34,19 @@ public:
     ~UserManager();
 
     std::vector<UserInfo> List();
-    void Create(const UserInfo & user) throw ();
-    void Update(const std::string _id, UserInfo & user) throw ();
+    
+    std::string Create(const UserInfo & user) throw ();
+    int Update(const std::string _id, UserInfo & user) throw ();
+    int Delete(std::string _id) throw ();
+
     UserInfo FindOne(std::string _id) throw ();
+    UserInfo FindUsername(std::string username) throw ();
     std::vector<UserInfo> Find(int offset, int limit);
     std::vector<UserInfo> Find(int offset, int limit, std::string text);
+    
+    long Count();
+    long Count(std::string text);
+    
     
 private:
     mongocxx::collection _collection;

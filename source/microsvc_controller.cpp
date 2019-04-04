@@ -10,6 +10,7 @@
 
 #include "microsvc_controller.hpp"
 #include "user_manager.hpp"
+#include "auth_manager.hpp"
 
 using namespace web;
 using namespace http;
@@ -32,18 +33,76 @@ void MicroServiceController::HandleGet(http_request request) {
             response[U("status")] = json::value::string(U("ready!"));
             request.reply(status_codes::OK, response);
         }
+        else if (path.size() == 2 && path[0] == U("auth") && path[1] == U("signon")) {
+            pplx::create_task([=]() -> std::tuple<bool, UserInfo> {
+                auto headers = request.headers();
+                if (request.headers().find("Authorization") == headers.end()) 
+                    throw std::exception();
+                auto authHeader = headers["Authorization"];
+                auto credsPos = authHeader.find("Basic");
+                if (credsPos == std::string::npos) 
+                    throw std::exception();
+                
+                auto base64 = authHeader.substr(credsPos + std::string("Basic").length() + 1);
+                if (base64.empty()) 
+                    throw std::exception();
+
+                auto bytes = utility::conversions::from_base64(base64);
+                std::string creds(bytes.begin(), bytes.end());
+                auto colonPos = creds.find(":");
+                if (colonPos == std::string::npos) 
+                    throw std::exception();
+
+                auto username = creds.substr(0, colonPos);
+                auto password = creds.substr(colonPos + 1, creds.size()  - colonPos - 1);            
+
+                UserInfo user;
+                AuthManager auth_mgr;         
+                if (auth_mgr.SignOn(username, password, user)) {
+                    return std::make_tuple(true, user);
+                }
+                else {
+                return std::make_tuple(false, UserInfo {});
+                }
+            })
+            .then([=](pplx::task<std::tuple<bool, UserInfo>> resultTsk) {
+                try {
+                    auto result = resultTsk.get();
+                    if (std::get<0>(result) == true) {
+                        json::value response;
+                        response["success"] = json::value::string("welcome " + std::get<1>(result).first_name + " " 
+                                    + std::get<1>(result).last_name + "!");                    
+                        request.reply(status_codes::OK, response);
+                    }
+                    else {
+                        request.reply(status_codes::Unauthorized);
+                    }
+                }
+                catch(std::exception) {
+                    request.reply(status_codes::Unauthorized);
+                }
+            });
+        }
         else if (path.size() == 2 && path[0] == U("idm") && path[1] == U("users")) {
             try {
                 UserManager userMgr;
                 std::vector<UserInfo> userList = userMgr.List();
-                auto response = json::value::array();
+                auto content = json::value::array();
                 int index=0;
                 for (UserInfo user : userList) {
                     auto juser = user.ToJsonObject();
-                    response[index] = juser;
+                    content[index] = juser;
                     index++;
                 }
-                request.reply(status_codes::OK, response);
+
+                http_response response(status_codes::OK);
+                response.headers().add(U("Content-Type"), U("application/json"));
+                response.headers().add(U("Pagination-Count"), U(userList.size()));
+                response.headers().add(U("Pagination-Page"), U("1"));
+                response.headers().add(U("Pagination-Limit"), U("-1"));
+                response.set_body(content);
+	
+                request.reply(response);
             }
             catch (const std::exception & e) {
                 json::value error;
@@ -78,14 +137,23 @@ void MicroServiceController::HandleGet(http_request request) {
 
             UserManager userMgr;
             std::vector<UserInfo> userList = userMgr.Find(offset, limit);
-            auto response = json::value::array();
+            auto content = json::value::array();
             int index=0;
             for (UserInfo user : userList) {
                 auto juser = user.ToJsonObject();
-                response[index] = juser;
+                content[index] = juser;
                 index++;
             }
-            request.reply(status_codes::OK, response);
+            long count = userMgr.Count();
+
+            http_response response(status_codes::OK);
+            response.headers().add(U("Content-Type"), U("application/json"));
+            response.headers().add(U("Pagination-Count"), U(count));
+            response.headers().add(U("Pagination-Page"), U(count / limit));
+            response.headers().add(U("Pagination-Limit"), U(limit));
+            response.set_body(content);
+
+            request.reply(response);
         }
         else if (path.size() == 5 && path[0] == U("idm") && path[1] == U("users")) {
             //cover offset & limit from path
@@ -95,14 +163,24 @@ void MicroServiceController::HandleGet(http_request request) {
 
             UserManager userMgr;
             std::vector<UserInfo> userList = userMgr.Find(offset, limit, text);
-            auto response = json::value::array();
+            auto content = json::value::array();
             int index=0;
             for (UserInfo user : userList) {
                 auto juser = user.ToJsonObject();
-                response[index] = juser;
+                content[index] = juser;
                 index++;
             }
-            request.reply(status_codes::OK, response);
+
+            long count = userMgr.Count(text);
+
+            http_response response(status_codes::OK);
+            response.headers().add(U("Content-Type"), U("application/json"));
+            response.headers().add(U("Pagination-Count"), U(count));
+            response.headers().add(U("Pagination-Page"), U(count / limit));
+            response.headers().add(U("Pagination-Limit"), U(limit));
+            response.set_body(content);
+
+            request.reply(response);
         }
         else {
             request.reply(status_codes::NotFound);
@@ -190,7 +268,26 @@ void MicroServiceController::HandlePut(http_request request) {
 }
 
 void MicroServiceController::HandleDelete(http_request request) {
-    request.reply(status_codes::NotImplemented, respNotImpl(methods::DEL));
+    auto path = RequestPath(request);
+    if (path.size() == 3 && path[0] == U("idm") && path[1] == U("user")) {
+        std::string _id = conversions::to_utf8string(path[2]);
+
+        try {
+            UserManager userMgr;
+            userMgr.Delete(_id);
+            
+            json::value response;
+            response[U("message")] = json::value::string(U("Update success."));
+            request.reply(status_codes::OK, response);
+        }
+        catch (const std::exception & e){
+            json::value error;
+            string_t u_what = conversions::to_string_t(e.what());
+            error[U("message")] = json::value::string(u_what);
+            request.reply(status_codes::BadRequest, error);
+        }
+        
+    }
 }
 
 json::value MicroServiceController::respNotImpl(const http::method & method) {
