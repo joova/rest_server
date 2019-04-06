@@ -1,5 +1,5 @@
-#include <gtest/gtest.h>
 #include <string>
+#include <gtest/gtest.h>
 #include "pool_config.hpp"
 #include "db_pool_singleton.hpp"
 #include "user_manager.hpp"

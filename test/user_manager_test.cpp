@@ -1,5 +1,3 @@
-#include <gtest/gtest.h>
-#include "user_manager.hpp"
 #include "user_manager_test.hpp"
 
 UserManager UserManagerTest::user_manager_;
@@ -42,7 +40,7 @@ TEST_F(UserManagerTest, List) {
 }
 
 TEST_F(UserManagerTest, Count) {
-    long count = user_manager_.Count();
+    int64_t count = user_manager_.Count();
     std::vector<UserInfo> users = user_manager_.List();
     EXPECT_EQ(count, users.size());
 }
@@ -53,7 +51,7 @@ TEST_F(UserManagerTest, FindText) {
 }
 
 TEST_F(UserManagerTest, CountText) {
-    long count = user_manager_.Count("hasyim");
+    int64_t count = user_manager_.Count("hasyim");
     EXPECT_GE(count, 0);
 }
 

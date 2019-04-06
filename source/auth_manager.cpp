@@ -3,7 +3,7 @@
 #include "crypto_utils.hpp"
 
 
-bool AuthManager::SignOn(std::string username, std::string password, UserInfo & user) throw () {
+bool AuthManager::SignOn(std::string username, std::string password, UserInfo & user) noexcept (false) {
     UserManager user_mgr;
     try {
         user = user_mgr.FindUsername(username);
@@ -14,7 +14,7 @@ bool AuthManager::SignOn(std::string username, std::string password, UserInfo & 
             return false;
         }
     } catch (const DbException & e) {
-        throw e;
+        throw DbException(std::string(e.what()));
     }
     
     return false;

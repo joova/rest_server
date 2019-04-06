@@ -76,7 +76,7 @@ UserManager::UserManager() {
 
 UserManager::~UserManager() { }
 
-std::string UserManager::Create(const UserInfo & user) throw() {    
+std::string UserManager::Create(const UserInfo & user) {    
     auto builder = document{};
     bsoncxx::document::value doc_value = builder 
         << "username" << user.username
@@ -98,7 +98,7 @@ std::string UserManager::Create(const UserInfo & user) throw() {
     }
 }
 
-int UserManager::Update(const std::string _id, UserInfo & user) throw() {    
+int UserManager::Update(const std::string _id, UserInfo & user) {    
     auto builder = document{};
     bsoncxx::document::value doc_filter = builder 
             << "_id" << bsoncxx::oid{
@@ -127,7 +127,7 @@ int UserManager::Update(const std::string _id, UserInfo & user) throw() {
 }
 
 // Delete - delete user by id
-int UserManager::Delete(std::string _id) throw () {
+int UserManager::Delete(std::string _id) {
     bsoncxx::stdx::optional<mongocxx::result::delete_result> 
         result = _collection.delete_one({
             document{} 
@@ -156,7 +156,7 @@ std::vector<UserInfo> UserManager::List() {
     return users;
 }
 
-UserInfo UserManager::FindOne(std::string _id) throw () {
+UserInfo UserManager::FindOne(std::string _id) {
     bsoncxx::stdx::optional<bsoncxx::document::value> 
         ovalue = _collection.find_one({
             document{} 
@@ -175,7 +175,7 @@ UserInfo UserManager::FindOne(std::string _id) throw () {
     }
 }
 
-UserInfo UserManager::FindUsername(std::string username) throw () {
+UserInfo UserManager::FindUsername(std::string username) {
     bsoncxx::stdx::optional<bsoncxx::document::value> 
         ovalue = _collection.find_one({
             document{} 
@@ -229,16 +229,16 @@ std::vector<UserInfo> UserManager::Find(int offset, int limit, std::string text)
 }
 
 // Count - jumlah semua user
-long UserManager::Count() {
+int64_t UserManager::Count() {
     std::vector<UserInfo> users;
-    long count  = _collection.count_documents({});
+    int64_t count  = _collection.count({});
     return count;
 }
 
 // Count - jumlah data difilter berdasarkan text
-long UserManager::Count(std::string text) {
+int64_t UserManager::Count(std::string text) {
     std::vector<UserInfo> users;
-    long count  = _collection.count_documents({
+    int64_t count  = _collection.count({
         document{} << "$text" 
             << open_document 
             << "$search" <<  text 

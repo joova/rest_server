@@ -36,10 +36,10 @@ void MicroServiceController::HandleGet(http_request request) {
         else if (path.size() == 2 && path[0] == U("auth") && path[1] == U("signon")) {
             pplx::create_task([=]() -> std::tuple<bool, UserInfo> {
                 auto headers = request.headers();
-                if (request.headers().find("Authorization") == headers.end()) 
+                if (request.headers().find(U("Authorization")) == headers.end()) 
                     throw std::exception();
-                auto authHeader = headers["Authorization"];
-                auto credsPos = authHeader.find("Basic");
+                auto authHeader = headers[U("Authorization")];
+                auto credsPos = authHeader.find(U("Basic"));
                 if (credsPos == std::string::npos) 
                     throw std::exception();
                 
@@ -47,7 +47,7 @@ void MicroServiceController::HandleGet(http_request request) {
                 if (base64.empty()) 
                     throw std::exception();
 
-                auto bytes = utility::conversions::from_base64(base64);
+                auto bytes = conversions::from_base64(base64);
                 std::string creds(bytes.begin(), bytes.end());
                 auto colonPos = creds.find(":");
                 if (colonPos == std::string::npos) 
@@ -70,8 +70,10 @@ void MicroServiceController::HandleGet(http_request request) {
                     auto result = resultTsk.get();
                     if (std::get<0>(result) == true) {
                         json::value response;
-                        response["success"] = json::value::string("welcome " + std::get<1>(result).first_name + " " 
-                                    + std::get<1>(result).last_name + "!");                    
+                        // std::stringstream ss;
+                        // ss << "welcome " << std::get<1>(result).first_name 
+                        //     << " " << std::get<1>(result).last_name << "!";
+                        response[U("success")] = json::value::string( conversions::to_string_t("Welcome"));                    
                         request.reply(status_codes::OK, response);
                     }
                     else {
@@ -96,10 +98,10 @@ void MicroServiceController::HandleGet(http_request request) {
                 }
 
                 http_response response(status_codes::OK);
-                response.headers().add(U("Content-Type"), U("application/json"));
-                response.headers().add(U("Pagination-Count"), U(userList.size()));
-                response.headers().add(U("Pagination-Page"), U("1"));
-                response.headers().add(U("Pagination-Limit"), U("-1"));
+                response.headers().add(U("Content-Type"), "application/json");
+                response.headers().add(U("Pagination-Count"), userList.size());
+                response.headers().add(U("Pagination-Page"), 1);
+                response.headers().add(U("Pagination-Limit"), -1);
                 response.set_body(content);
 	
                 request.reply(response);
@@ -144,13 +146,13 @@ void MicroServiceController::HandleGet(http_request request) {
                 content[index] = juser;
                 index++;
             }
-            long count = userMgr.Count();
+            int64_t count = userMgr.Count();
 
             http_response response(status_codes::OK);
-            response.headers().add(U("Content-Type"), U("application/json"));
-            response.headers().add(U("Pagination-Count"), U(count));
-            response.headers().add(U("Pagination-Page"), U(count / limit));
-            response.headers().add(U("Pagination-Limit"), U(limit));
+            response.headers().add(U("Content-Type"), "application/json");
+            response.headers().add(U("Pagination-Count"), count);
+            response.headers().add(U("Pagination-Page"), count / limit);
+            response.headers().add(U("Pagination-Limit"), limit);
             response.set_body(content);
 
             request.reply(response);
@@ -171,13 +173,13 @@ void MicroServiceController::HandleGet(http_request request) {
                 index++;
             }
 
-            long count = userMgr.Count(text);
+            int64_t count = userMgr.Count(text);
 
             http_response response(status_codes::OK);
-            response.headers().add(U("Content-Type"), U("application/json"));
-            response.headers().add(U("Pagination-Count"), U(count));
-            response.headers().add(U("Pagination-Page"), U(count / limit));
-            response.headers().add(U("Pagination-Limit"), U(limit));
+            response.headers().add(U("Content-Type"), "application/json");
+            response.headers().add(U("Pagination-Count"), count);
+            response.headers().add(U("Pagination-Page"), (count / limit));
+            response.headers().add(U("Pagination-Limit"), limit);
             response.set_body(content);
 
             request.reply(response);
