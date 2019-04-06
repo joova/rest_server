@@ -7,6 +7,7 @@
 
 #include "user_manager.hpp"
 #include "db_pool_singleton.hpp"
+#include "crypto_utils.hpp"
 
 using namespace utility;
 
@@ -64,35 +65,40 @@ json::value UserInfo::ToJsonObject() {
 UserManager::UserManager() {    
     BOOST_LOG_TRIVIAL(debug) << "UserManager::UserManager()";
 
-    DbPoolSingleton dbPool = DbPoolSingleton::GetInstance();
-    auto conn = dbPool.connection().acquire();
+    auto conn = DbPoolSingleton::instance().connection();
     BOOST_LOG_TRIVIAL(debug) << "connection().acquire()";
 
-    auto db = (*conn)[dbPool.config().database()];
+    auto db = (*conn)[DbPoolSingleton::instance().config().database()];
+    
     BOOST_LOG_TRIVIAL(debug) << "db[user]";
-
     _collection = db["users"];
 }
 
 UserManager::~UserManager() { }
 
-void UserManager::Create(const UserInfo & user) throw() {    
+std::string UserManager::Create(const UserInfo & user) {    
     auto builder = document{};
     bsoncxx::document::value doc_value = builder 
         << "username" << user.username
-        << "password" << user.password
+        << "password" << CryptoUtils::SHA256(user.password)
         << "first_name" << user.first_name
         << "last_name" << user.last_name
         << finalize;
     try {
-        _collection.insert_one(std::move(doc_value));
+        bsoncxx::stdx::optional<mongocxx::result::insert_one> 
+        result = _collection.insert_one(std::move(doc_value));
+        if (result) {
+            return result->inserted_id().get_oid().value.to_string();
+        } else {
+            return "";
+        }
     }
     catch (const std::exception& e) {
         throw DbException(std::string(e.what()));
     }
 }
 
-void UserManager::Update(const std::string _id, UserInfo & user) throw() {    
+int UserManager::Update(const std::string _id, UserInfo & user) {    
     auto builder = document{};
     bsoncxx::document::value doc_filter = builder 
             << "_id" << bsoncxx::oid{
@@ -105,14 +111,41 @@ void UserManager::Update(const std::string _id, UserInfo & user) throw() {
         << "last_name" << user.last_name
         << close_document
         << finalize;
+
     try {
-        _collection.update_one(std::move(doc_filter),std::move(doc_value));
+        bsoncxx::stdx::optional<mongocxx::result::update> 
+        result = _collection.update_one(std::move(doc_filter),std::move(doc_value));
+        if (result) {
+            return result->modified_count();
+        } else {
+            return 0;
+        }
     }
     catch (const std::exception& e) {
         throw DbException(std::string(e.what()));
     }
 }
 
+// Delete - delete user by id
+int UserManager::Delete(std::string _id) {
+    bsoncxx::stdx::optional<mongocxx::result::delete_result> 
+        result = _collection.delete_one({
+            document{} 
+                << "_id" << bsoncxx::oid{
+                        bsoncxx::stdx::string_view{_id}
+                    }
+            << finalize 
+        });
+
+    if(result) {
+        int dcount = result->deleted_count();
+        return dcount;
+    } else {
+        return 0;
+    }
+}
+
+// List - ambil semua user
 std::vector<UserInfo> UserManager::List() {
     std::vector<UserInfo> users;
     auto cursor = _collection.find({});
@@ -123,13 +156,30 @@ std::vector<UserInfo> UserManager::List() {
     return users;
 }
 
-UserInfo UserManager::FindOne(std::string _id) throw () {
+UserInfo UserManager::FindOne(std::string _id) {
     bsoncxx::stdx::optional<bsoncxx::document::value> 
         ovalue = _collection.find_one({
             document{} 
                 << "_id" << bsoncxx::oid{
                         bsoncxx::stdx::string_view{_id}
                     }
+            << finalize 
+        });
+
+    if(ovalue) {
+        auto doc = ovalue->view();
+        UserInfo user = getUserInfo(doc);
+        return user;
+    } else {
+        throw DbException(std::string("User not found."));
+    }
+}
+
+UserInfo UserManager::FindUsername(std::string username) {
+    bsoncxx::stdx::optional<bsoncxx::document::value> 
+        ovalue = _collection.find_one({
+            document{} 
+                << "username" << username
             << finalize 
         });
 
@@ -178,10 +228,36 @@ std::vector<UserInfo> UserManager::Find(int offset, int limit, std::string text)
     return users;
 }
 
+// Count - jumlah semua user
+int64_t UserManager::Count() {
+    std::vector<UserInfo> users;
+    int64_t count  = _collection.count({});
+    return count;
+}
+
+// Count - jumlah data difilter berdasarkan text
+int64_t UserManager::Count(std::string text) {
+    std::vector<UserInfo> users;
+    int64_t count  = _collection.count({
+        document{} << "$text" 
+            << open_document 
+            << "$search" <<  text 
+            << close_document 
+        << finalize
+    });
+    return count;
+}
+
 UserInfo UserManager::getUserInfo(const bsoncxx::document::view & doc){
     UserInfo user{};
-    user._id = doc["_id"].get_oid().value.to_string();
-    user.username = doc["username"].get_utf8().value.to_string();
+
+    bsoncxx::document::element eid = doc["_id"];
+    if(eid.type() == bsoncxx::type::k_oid) {
+        user._id = eid.get_oid().value.to_string();
+    }
+
+    bsoncxx::document::element eusername = doc["username"];
+    user.username = eusername.get_utf8().value.to_string();
     user.password = doc["password"].get_utf8().value.to_string();
     user.first_name = doc["first_name"].get_utf8().value.to_string();
     user.last_name = doc["last_name"].get_utf8().value.to_string();

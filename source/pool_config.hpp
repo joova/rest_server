@@ -6,13 +6,13 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
-class ConnPoolConfig {
+class PoolConfig {
     std::string _conn_str;
     std::string _database;
 
 public:
-    ConnPoolConfig() : _conn_str(""), _database("") {}
-    ConnPoolConfig(const std::string &confPath) {
+    PoolConfig() : _conn_str(""), _database("") {}
+    PoolConfig(const std::string &confPath) {
         using boost::property_tree::ptree;
         
         ptree conf;

@@ -1,3 +1,4 @@
 .vscode/ipch/**
 build/**
-logs/server.log
+logs/**
+
