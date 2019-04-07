@@ -15,10 +15,12 @@
 #include "user_manager.hpp"
 
 using namespace web;
+using namespace http;
 
-class AuthManager {
+class AuthHandler {
 public:
-    static bool SignOn(std::string username, std::string password, UserInfo & user) noexcept (false);
+    void HandleSignOn(const http_request & request);
+    bool SignOn(std::string username, std::string password, UserInfo & user) noexcept (false);
 };
 
 #endif // REST_SERVER_AUTH_MANAGER_H_

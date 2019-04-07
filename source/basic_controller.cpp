@@ -1,4 +1,3 @@
-#include <iostream>
 #include "basic_controller.hpp"
 
 using namespace utility;

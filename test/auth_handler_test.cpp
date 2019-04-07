@@ -1,13 +1,13 @@
 #include <gtest/gtest.h>
-#include "auth_manager.hpp"
-#include "auth_manager_test.hpp"
+#include "auth_handler.hpp"
+#include "auth_handler_test.hpp"
 
-AuthManager AuthManagerTest::auth_manager_;
+AuthHandler AuthHandlerTest::auth_handler_;
 
-TEST_F(AuthManagerTest, SignOn) {
+TEST_F(AuthHandlerTest, SignOn) {
     UserInfo user{};
     
-    bool result = auth_manager_.SignOn("admin@domain.com", "password", user);
+    bool result = auth_handler_.SignOn("admin@domain.com", "password", user);
     EXPECT_EQ(result, true);
     EXPECT_STREQ(user.username.c_str(), "admin@domain.com");
     EXPECT_STREQ(user.first_name.c_str(), "System");
