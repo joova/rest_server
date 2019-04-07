@@ -1,11 +1,11 @@
 #include <gtest/gtest.h>
 #include <string>
-#include "auth_manager.hpp"
+#include "auth_handler.hpp"
 
-class AuthManagerTest : public ::testing::Test {
+class AuthHandlerTest : public ::testing::Test {
 protected:
     static void SetupTestSuite() {
-        auth_manager_ = AuthManager{};
+        auth_handler_ = AuthHandler{};
         id_ = std::string{};
     }
 
@@ -17,6 +17,6 @@ protected:
     virtual void SetUp() {}
     virtual void TearDown() {}
 
-    static AuthManager auth_manager_;
+    static AuthHandler auth_handler_;
     static std::string id_;
 };

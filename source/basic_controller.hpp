@@ -1,6 +1,8 @@
 #ifndef REST_SERVER_BASIC_CONTROLLER_H_
 #define REST_SERVER_BASIC_CONTROLLER_H_
 
+#include <iostream>
+
 #include <cpprest/http_listener.h>
 #include <pplx/pplxtasks.h>
 
