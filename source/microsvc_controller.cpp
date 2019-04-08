@@ -15,26 +15,30 @@ void MicroServiceController::InitRestHandlers() {
 void MicroServiceController::HandleGet(http_request request) {
     auto path = RequestPath(request);
     if (!path.empty()) {
-        if (path.size() == 2 && path[0] == U("idm") && path[1] == U("health")) {
+        if (path.size() == 2 && path[0] == U("service") && path[1] == U("health")) {
             HealthHandler().HandleStatus(request);
         }
         else if (path.size() == 2 && path[0] == U("auth") && path[1] == U("signon")) {
             AuthHandler().HandleSignOn(request);
         }
         else if (path.size() == 2 && path[0] == U("idm") && path[1] == U("users")) {
+            AuthHandler().AuthMiddleware(request);
             UserHandler().HandleList(request);
         }
         else if (path.size() == 3 && path[0] == U("idm") && path[1] == U("user")) {
+            AuthHandler().AuthMiddleware(request);
             std::string _id = conversions::to_utf8string(path[2]);
             UserHandler().HandleFindOne(request, _id);
         }
         else if (path.size() == 4 && path[0] == U("idm") && path[1] == U("users")) {
+            AuthHandler().AuthMiddleware(request);
             //cover offset & limit from path
             int offset = std::stoi(path[2]);
             int limit = std::stoi(path[3]);
             UserHandler().HandleFind(request, offset, limit);
         }
         else if (path.size() == 5 && path[0] == U("idm") && path[1] == U("users")) {
+            AuthHandler().AuthMiddleware(request);
             //cover offset & limit from path
             int offset = std::stoi(path[2]);
             int limit = std::stoi(path[3]);
@@ -55,6 +59,7 @@ void MicroServiceController::HandlePost(http_request request) {
     auto path = RequestPath(request);
     if (!path.empty()) {
         if (path[0] == U("idm") && path[1] == U("user")) {
+            AuthHandler().AuthMiddleware(request);
             UserHandler().HandleCreate(request);
         }
         else {
@@ -70,6 +75,7 @@ void MicroServiceController::HandlePut(http_request request) {
     auto path = RequestPath(request);
     if (!path.empty()) {
         if (path.size() == 3 && path[0] == U("idm") && path[1] == U("user")) {
+            AuthHandler().AuthMiddleware(request);
             std::string _id = conversions::to_utf8string(path[2]);
             UserHandler().HandleUpdate(request, _id);
         }
@@ -85,6 +91,7 @@ void MicroServiceController::HandlePut(http_request request) {
 void MicroServiceController::HandleDelete(http_request request) {
     auto path = RequestPath(request);
     if (path.size() == 3 && path[0] == U("idm") && path[1] == U("user")) {
+        AuthHandler().AuthMiddleware(request);
         std::string _id = conversions::to_utf8string(path[2]);
         UserHandler().HandleDelete(request, _id);
     }

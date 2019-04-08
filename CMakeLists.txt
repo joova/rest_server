@@ -12,8 +12,8 @@ find_package(cpprestsdk REQUIRED)
 find_package(libmongocxx REQUIRED)
 find_package(libbsoncxx REQUIRED)
 
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11 -DBOOST_LOG_DYN_LINK")
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBOOST_LOG_DYN_LINK")
 
 add_executable( ${PROJECT_NAME} source/main.cpp
                                 source/db_pool_singleton.cpp
@@ -29,7 +29,8 @@ add_executable( ${PROJECT_NAME} source/main.cpp
 # message(OPENSSL_LIBS " ${OPENSSL_LIBRARIES}")
 # message(CPPRESTSDK_INCLUDE_DIR " ${CPPRESTSDK_INCLUDE_DIR}")
 
-set(MICROSERVICE_INCLUDE_DIR "./source")
+set(MICROSERVICE_INCLUDE_DIR "source")
+set(JWT_INCLUDE_DIR "include")
 
 file(GLOB COMMON_LIBRARIES ${LIBMONGOCXX_LIBRARIES} 
                             ${LIBBSONCXX_LIBRARIES}
@@ -41,7 +42,8 @@ file(GLOB COMMON_INCLUDES ${LIBMONGOCXX_INCLUDE_DIRS}
                             ${LIBBSONCXX_INCLUDE_DIRS} 
                             ${Boost_INCLUDE_DIR}
                             ${OPENSSL_INCLUDE_DIR}
-                            ${MICROSERVICE_INCLUDE_DIR})
+                            ${MICROSERVICE_INCLUDE_DIR}
+                            ${JWT_INCLUDE_DIR})
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${COMMON_INCLUDES})
 # target_include_directories(${PROJECT_NAME} PUBLIC ${Boost_INCLUDE_DIR})
@@ -73,7 +75,9 @@ add_executable(rest-test test/main_test.cpp
                         source/health_handler.cpp
                         source/user_handler.cpp)
 
-target_include_directories(rest-test PUBLIC ${COMMON_INCLUDES} ${GTEST_INCLUDE_DIRS})
+target_include_directories(rest-test PUBLIC ${COMMON_INCLUDES} 
+                            ${GTEST_INCLUDE_DIRS})
+
 target_link_libraries(rest-test PRIVATE ${GTEST_LIBRARIES} 
                                         ${COMMON_LIBRARIES} 
                                         cpprestsdk::cpprest 

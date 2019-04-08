@@ -7,6 +7,7 @@ protected:
     static void SetupTestSuite() {
         auth_handler_ = AuthHandler{};
         id_ = std::string{};
+        token_ = std::string{};
     }
 
     static void TearDownTestSuite() {
@@ -19,4 +20,5 @@ protected:
 
     static AuthHandler auth_handler_;
     static std::string id_;
+    static std::string token_;
 };
